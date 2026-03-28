@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HuertaCantero" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#2d7a3a</item>
+        <item name="colorPrimaryDark">#1b5e20</item>
+        <item name="colorAccent">#4caf50</item>
+        <item name="android:windowBackground">#f5f5f5</item>
+        <item name="android:statusBarColor">#2d7a3a</item>
+        <item name="android:navigationBarColor">#2d7a3a</item>
+    </style>
+</resources>

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Huerta Emoji</title>
+<style>
+  :root {
+    --green: #2d7a3a;
+    --green-light: #4caf50;
+    --green-pale: #e8f5e9;
+    --red: #e53935;
+    --red-pale: #ffebee;
+    --yellow: #f9a825;
+    --yellow-pale: #fffde7;
+    --bg: #f5f5f5;
+    --white: #ffffff;
+    --gray: #9e9e9e;
+    --gray-dark: #424242;
+    --shadow: 0 2px 8px rgba(0,0,0,0.15);
+    --radius: 12px;
+    --cell: 42px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--green);
+    color: white;
+    padding: 14px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+  header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+  header .subtitle { font-size: 11px; opacity: 0.8; margin-top: 1px; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 7px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .icon-btn:active { background: rgba(255,255,255,0.35); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid #e0e0e0;
+    position: sticky;
+    top: 60px;
+    z-index: 99;
+  }
+  .tab {
+    flex: 1;
+    padding: 11px 4px 9px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+  .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 12px; }
+  .page.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── GRID PAGE ── */
+  .grid-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .grid-controls label { font-size: 12px; color: var(--gray); }
+  .grid-controls input[type=number] {
+    width: 52px;
+    padding: 5px 6px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 7px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--green); color: white; }
+  .btn-danger  { background: var(--red);   color: white; }
+  .btn-warn    { background: var(--yellow); color: #333; }
+  .btn-outline {
+    background: transparent;
+    color: var(--green);
+    border: 1.5px solid var(--green);
+  }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* Plant selector */
+  .plant-selector {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .plant-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: var(--green-pale);
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .plant-chip.selected {
+    border-color: var(--green);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(45,122,58,0.2);
+  }
+  .plant-chip.eraser {
+    background: #fce4ec;
+    border-color: #f48fb1;
+    color: var(--red);
+  }
+  .plant-chip.eraser.selected {
+    background: var(--red);
+    color: white;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(229,57,53,0.2);
+  }
+  .plant-chip-emoji { font-size: 20px; }
+  .plant-chip-name  { font-size: 11px; font-weight: 600; }
+
+  /* Grid wrapper */
+  .grid-wrapper {
+    overflow: auto;
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    position: relative;
+    max-height: 55vh;
+  }
+  .grid-table {
+    border-collapse: collapse;
+    display: block;
+    white-space: nowrap;
+  }
+  .grid-table td {
+    width: var(--cell);
+    height: var(--cell);
+    min-width: var(--cell);
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #eeeeee;
+    font-size: 22px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+    position: relative;
+  }
+  .grid-table td:hover  { background: #f0f8f0; }
+  .grid-table td:active { background: #c8e6c9; }
+  .grid-table td.error  { background: var(--red-pale) !important; outline: 2px solid var(--red); outline-offset: -2px; }
+  .grid-table td.error::after {
+    content: '⚠';
+    position: absolute;
+    top: 1px; right: 2px;
+    font-size: 10px;
+    color: var(--red);
+  }
+
+  /* Suggestion banner */
+  .suggestion-banner {
+    display: none;
+    background: var(--yellow-pale);
+    border: 1.5px solid var(--yellow);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: #5d4037;
+  }
+  .suggestion-banner.show { display: block; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .stat-pill {
+    background: var(--green-pale);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  /* ── PLANTS PAGE ── */
+  .plant-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .plant-item:last-child { border-bottom: none; }
+  .plant-emoji-big { font-size: 28px; width: 36px; text-align: center; }
+  .plant-info { flex: 1; }
+  .plant-info strong { font-size: 14px; display: block; }
+  .plant-info span   { font-size: 11px; color: var(--gray); }
+  .plant-actions { display: flex; gap: 6px; }
+
+  /* Form add plant */
+  .form-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 80px; }
+  .form-group label { font-size: 11px; color: var(--gray); font-weight: 600; }
+  .form-group input {
+    padding: 8px 10px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 100%;
+  }
+  .form-group input:focus { outline: none; border-color: var(--green); }
+
+  /* ── ASSOCIATIONS ── */
+  .assoc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .assoc-good { background: #e8f5e9; }
+  .assoc-warn { background: #fff3e0; }
+  .assoc-bad  { background: #ffebee; }
+  .assoc-icon { font-size: 20px; }
+  .assoc-text { font-size: 12px; flex: 1; }
+  .assoc-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+  }
+  .badge-green  { background: var(--green);  color: white; }
+  .badge-yellow { background: var(--yellow); color: #333; }
+  .badge-red    { background: var(--red);    color: white; }
+
+  /* ── SAVES PAGE ── */
+  .save-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: white;
+    transition: border-color 0.15s;
+  }
+  .save-item:active { border-color: var(--green); }
+  .save-icon { font-size: 24px; }
+  .save-info { flex: 1; }
+  .save-info strong { font-size: 13px; display: block; }
+  .save-info span   { font-size: 11px; color: var(--gray); }
+  .save-btns { display: flex; gap: 5px; }
+
+  /* ── EXPORT PAGE ── */
+  .export-preview {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 12px;
+    overflow: auto;
+    font-size: 11px;
+    color: #a5d6a7;
+    line-height: 1.6;
+    font-family: monospace;
+    max-height: 200px;
+    margin-bottom: 10px;
+    white-space: pre;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px 32px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal h3 { font-size: 16px; margin-bottom: 14px; }
+  .modal-close {
+    float: right;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--gray);
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gray-dark);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 300;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── CANVAS hidden ── */
+  #exportCanvas { display: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 360px) {
+    :root { --cell: 36px; }
+    .plant-chip-name { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <h1>🌱 Huerta Emoji</h1>
+    <div class="subtitle" id="gridSizeLabel">Grilla 10×10 · 1m²</div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openConfigModal()" title="Configurar">⚙️</button>
+    <button class="icon-btn" onclick="clearGrid()" title="Limpiar">🗑️</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active" onclick="showTab('grid')">
+    <span class="tab-icon">🌿</span>Diseño
+  </div>
+  <div class="tab" onclick="showTab('plants')">
+    <span class="tab-icon">🪴</span>Plantas
+  </div>
+  <div class="tab" onclick="showTab('assoc')">
+    <span class="tab-icon">🤝</span>Asociaciones
+  </div>
+  <div class="tab" onclick="showTab('saves')">
+    <span class="tab-icon">💾</span>Guardados
+  </div>
+  <div class="tab" onclick="showTab('export')">
+    <span class="tab-icon">📤</span>Exportar
+  </div>
+</nav>
+
+<!-- ════════════════ TAB: DISEÑO ════════════════ -->
+<div id="page-grid" class="page active">
+
+  <div id="suggestionBanner" class="suggestion-banner">
+    💡 <span id="suggestionText"></span>
+  </div>
+
+  <!-- Plant selector -->
+  <div class="card" style="padding:10px 14px;">
+    <div class="card-title">Seleccionar planta</div>
+    <div class="plant-selector" id="plantSelector"></div>
+  </div>
+
+  <!-- Grid -->
+  <div class="card" style="padding:10px;">
+    <div class="grid-wrapper" id="gridWrapper">
+      <table class="grid-table" id="gridTable"></table>
+    </div>
+    <div class="stats-bar" id="statsBar"></div>
+  </div>
+
+</div>
+
+<!-- ════════════════ TAB: PLANTAS ════════════════ -->
+<div id="page-plants" class="page">
+  <div class="card">
+    <div class="card-title">Agregar planta</div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:70px;">
+        <label>Emoji</label>
+        <input type="text" id="newEmoji" placeholder="🥦" maxlength="2">
+      </div>
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="newName" placeholder="Brócoli">
+      </div>
+      <div class="form-group" style="max-width:80px;">
+        <label>Dist. (cm)</label>
+        <input type="number" id="newDist" placeholder="30" min="10" max="200">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="addPlant()">+ Agregar</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Mis plantas</div>
+    <div id="plantList"></div>
+  </div>
+</div>
+
+<!-- ════════════════ TAB: ASOCIACIONES ════════════════ -->
+<div id="page-assoc" class="page">
+  <div class="card">
+    <div class="card-title">Asociaciones conocidas</div>
+    <div id="assocList"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sugerencias para tu diseño actual</div>
+    <div id="currentSuggestions"></div>
+  </div>
+</div>
+
+<!-- ════════════════ TAB: GUARDADOS ════════════════ -->
+<div id="page-saves" class="page">
+  <div class="card">
+    <div class="card-title">Guardar diseño actual</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre del diseño</label>
+        <input type="text" id="saveName" placeholder="Mi huerta primavera">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveDesign()">💾 Guardar</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Diseños guardados</div>
+    <div id="savesList"></div>
+  </div>
+</div>
+
+<!-- ════════════════ TAB: EXPORTAR ════════════════ -->
+<div id="page-export" class="page">
+  <div class="card">
+    <div class="card-title">Vista previa de texto</div>
+    <div class="export-preview" id="exportPreview"></div>
+    <div class="form-row" style="gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="exportText()">📋 Copiar texto</button>
+      <button class="btn btn-outline" onclick="downloadText()">⬇️ Guardar .txt</button>
+      <button class="btn btn-warn" onclick="exportPNG()">🖼️ Exportar PNG</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Información del diseño</div>
+    <div id="exportInfo"></div>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: CONFIG GRILLA ════════════════ -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('configModal')">✕</button>
+    <h3>⚙️ Configurar Grilla</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Columnas (ancho)</label>
+        <input type="number" id="cfgCols" min="3" max="30" value="10">
+      </div>
+      <div class="form-group">
+        <label>Filas (largo)</label>
+        <input type="number" id="cfgRows" min="3" max="40" value="10">
+      </div>
+    </div>
+    <p style="font-size:11px; color:var(--gray); margin-bottom:12px;">
+      Cada celda = 10×10 cm · El contenido actual se conservará si cabe
+    </p>
+    <button class="btn btn-primary" style="width:100%" onclick="applyConfig()">✅ Aplicar</button>
+  </div>
+</div>
+
+<!-- CANVAS FOR PNG -->
+<canvas id="exportCanvas"></canvas>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let COLS = 10, ROWS = 10;
+let grid = []; // grid[row][col] = plantId or null
+
+let plants = [
+  { id: 'lechuga',   emoji: '🥬', name: 'Lechuga',   dist: 30 },
+  { id: 'tomate',    emoji: '🍅', name: 'Tomate',     dist: 50 },
+  { id: 'zanahoria', emoji: '🥕', name: 'Zanahoria',  dist: 10 },
+  { id: 'albahaca',  emoji: '🌿', name: 'Albahaca',   dist: 20 },
+];
+
+const ASSOCIATIONS = [
+  { a: 'tomate',    b: 'albahaca',  type: 'good', note: 'Tomate + Albahaca se protegen mutuamente. ¡Excelente combinación!' },
+  { a: 'zanahoria', b: 'lechuga',   type: 'good', note: 'Zanahoria + Lechuga se complementan bien en espacio.' },
+  { a: 'zanahoria', b: 'tomate',    type: 'good', note: 'Zanahoria + Tomate son buenos vecinos.' },
+  { a: 'zanahoria', b: 'albahaca',  type: 'good', note: 'Zanahoria tolera bien la albahaca.' },
+  { a: 'tomate',    b: 'tomate',    type: 'warn', note: 'Plantar muchos tomates juntos favorece plagas.' },
+];
+
+let selectedPlant = null; // id or 'eraser'
+let errors = new Set();   // "row,col"
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+function init() {
+  loadState();
+  buildGrid();
+  renderPlantSelector();
+  renderPlantList();
+  renderAssociations();
+  renderSaves();
+  updateExportPreview();
+  updateStats();
+}
+
+// ════════════════════════════════════════════════
+//  GRID
+// ════════════════════════════════════════════════
+function buildGrid(keepData) {
+  const oldGrid = keepData ? grid.map(r => [...r]) : null;
+  grid = Array.from({length: ROWS}, (_, r) =>
+    Array.from({length: COLS}, (_, c) =>
+      oldGrid && r < oldGrid.length && c < oldGrid[0].length ? oldGrid[r][c] : null
+    )
+  );
+  renderGrid();
+  updateHeaderLabel();
+}
+
+function renderGrid() {
+  const table = document.getElementById('gridTable');
+  table.innerHTML = '';
+  errors.clear();
+
+  for (let r = 0; r < ROWS; r++) {
+    const tr = document.createElement('tr');
+    for (let c = 0; c < COLS; c++) {
+      const td = document.createElement('td');
+      const pid = grid[r][c];
+      td.textContent = pid ? getPlant(pid)?.emoji ?? '⬜' : '⬜';
+      td.dataset.r = r;
+      td.dataset.c = c;
+      td.addEventListener('click', onCellClick);
+      td.addEventListener('touchmove', onTouchMove, { passive: true });
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  validateAll();
+  updateExportPreview();
+  updateStats();
+}
+
+function onCellClick(e) {
+  const r = +e.currentTarget.dataset.r;
+  const c = +e.currentTarget.dataset.c;
+  placeOnCell(r, c);
+}
+
+let lastTouchCell = null;
+function onTouchMove(e) {
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (!el || !el.dataset.r) return;
+  const key = el.dataset.r + ',' + el.dataset.c;
+  if (key === lastTouchCell) return;
+  lastTouchCell = key;
+  placeOnCell(+el.dataset.r, +el.dataset.c);
+}
+
+function placeOnCell(r, c) {
+  if (!selectedPlant) { toast('Seleccioná una planta primero'); return; }
+  if (selectedPlant === 'eraser') {
+    grid[r][c] = null;
+  } else {
+    grid[r][c] = selectedPlant;
+  }
+  const td = document.querySelector(`#gridTable td[data-r="${r}"][data-c="${c}"]`);
+  if (td) {
+    const pid = grid[r][c];
+    td.textContent = pid ? getPlant(pid)?.emoji ?? '⬜' : '⬜';
+    td.classList.remove('error');
+  }
+  validateAll();
+  updateExportPreview();
+  updateStats();
+  checkSuggestions();
+  saveState();
+}
+
+function clearGrid() {
+  if (!confirm('¿Limpiar toda la grilla?')) return;
+  grid = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+  renderGrid();
+  saveState();
+  toast('Grilla limpiada 🗑️');
+}
+
+// ════════════════════════════════════════════════
+//  VALIDATION
+// ════════════════════════════════════════════════
+function validateAll() {
+  errors.clear();
+  const cells = document.querySelectorAll('#gridTable td');
+  cells.forEach(td => td.classList.remove('error'));
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const pid = grid[r][c];
+      if (!pid) continue;
+      const plant = getPlant(pid);
+      if (!plant) continue;
+      const minCells = Math.ceil(plant.dist / 10);
+
+      for (let dr = -minCells; dr <= minCells; dr++) {
+        for (let dc = -minCells; dc <= minCells; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const nr = r + dr, nc = c + dc;
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+          if (grid[nr][nc] === pid) {
+            const dist = Math.sqrt(dr*dr + dc*dc) * 10; // cm
+            if (dist < plant.dist) {
+              errors.add(`${r},${c}`);
+              errors.add(`${nr},${nc}`);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  errors.forEach(key => {
+    const [r, c] = key.split(',');
+    const td = document.querySelector(`#gridTable td[data-r="${r}"][data-c="${c}"]`);
+    if (td) td.classList.add('error');
+  });
+}
+
+// ════════════════════════════════════════════════
+//  SUGGESTIONS
+// ════════════════════════════════════════════════
+function checkSuggestions() {
+  const banner = document.getElementById('suggestionBanner');
+  const text   = document.getElementById('suggestionText');
+  const present = new Set(grid.flat().filter(Boolean));
+  const suggestions = [];
+
+  ASSOCIATIONS.forEach(a => {
+    if (a.type === 'good') {
+      if (present.has(a.a) && !present.has(a.b)) {
+        const pa = getPlant(a.a), pb = getPlant(a.b);
+        if (pa && pb) suggestions.push(`Tenés ${pa.emoji} ${pa.name} — ¿agregar ${pb.emoji} ${pb.name}? ${a.note}`);
+      }
+    }
+    if (a.type === 'warn' && a.a === a.b) {
+      let count = grid.flat().filter(x => x === a.a).length;
+      if (count > 4) {
+        const p = getPlant(a.a);
+        suggestions.push(`⚠️ Tenés ${count} ${p?.emoji} — ${a.note}`);
+      }
+    }
+  });
+
+  if (suggestions.length) {
+    text.textContent = suggestions[0];
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+
+  renderCurrentSuggestions(present);
+}
+
+function renderCurrentSuggestions(present) {
+  const el = document.getElementById('currentSuggestions');
+  if (!present) present = new Set(grid.flat().filter(Boolean));
+  const items = [];
+
+  if (present.size === 0) {
+    el.innerHTML = '<p style="color:var(--gray);font-size:13px;">Agregá plantas a tu diseño para ver sugerencias.</p>';
+    return;
+  }
+
+  ASSOCIATIONS.forEach(a => {
+    const pa = getPlant(a.a), pb = getPlant(a.b);
+    if (!pa || !pb) return;
+    if (present.has(a.a) || present.has(a.b)) {
+      const icon = a.type === 'good' ? '✅' : a.type === 'warn' ? '⚠️' : '❌';
+      const cls  = a.type === 'good' ? 'assoc-good' : a.type === 'warn' ? 'assoc-warn' : 'assoc-bad';
+      const badge = a.type === 'good' ? 'badge-green' : a.type === 'warn' ? 'badge-yellow' : 'badge-red';
+      const label = a.type === 'good' ? 'Recomendado' : a.type === 'warn' ? 'Atención' : 'Evitar';
+      items.push(`
+        <div class="assoc-item ${cls}">
+          <span class="assoc-icon">${icon}</span>
+          <div class="assoc-text">
+            <strong>${pa.emoji} ${pa.name} + ${pb.emoji} ${pb.name}</strong><br>
+            <span style="font-size:11px">${a.note}</span>
+          </div>
+          <span class="assoc-badge ${badge}">${label}</span>
+        </div>
+      `);
+    }
+  });
+
+  el.innerHTML = items.length ? items.join('') : '<p style="color:var(--gray);font-size:13px;">No hay asociaciones conocidas para tus plantas actuales.</p>';
+}
+
+// ════════════════════════════════════════════════
+//  PLANT SELECTOR
+// ════════════════════════════════════════════════
+function renderPlantSelector() {
+  const el = document.getElementById('plantSelector');
+  el.innerHTML = plants.map(p => `
+    <div class="plant-chip ${selectedPlant===p.id?'selected':''}" onclick="selectPlant('${p.id}')" id="chip-${p.id}">
+      <span class="plant-chip-emoji">${p.emoji}</span>
+      <span class="plant-chip-name">${p.name}</span>
+    </div>
+  `).join('') + `
+    <div class="plant-chip eraser ${selectedPlant==='eraser'?'selected':''}" onclick="selectPlant('eraser')" id="chip-eraser">
+      <span class="plant-chip-emoji">🧹</span>
+      <span class="plant-chip-name">Borrar</span>
+    </div>
+  `;
+}
+
+function selectPlant(id) {
+  selectedPlant = id;
+  document.querySelectorAll('.plant-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('chip-' + id)?.classList.add('selected');
+}
+
+// ════════════════════════════════════════════════
+//  PLANT LIST
+// ════════════════════════════════════════════════
+function renderPlantList() {
+  const el = document.getElementById('plantList');
+  el.innerHTML = plants.map(p => `
+    <div class="plant-item">
+      <span class="plant-emoji-big">${p.emoji}</span>
+      <div class="plant-info">
+        <strong>${p.name}</strong>
+        <span>Distancia mínima: ${p.dist} cm (${p.dist/10} celdas)</span>
+      </div>
+      <div class="plant-actions">
+        <button class="btn btn-outline btn-sm" onclick="editPlant('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePlant('${p.id}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addPlant() {
+  const emoji = document.getElementById('newEmoji').value.trim();
+  const name  = document.getElementById('newName').value.trim();
+  const dist  = parseInt(document.getElementById('newDist').value);
+  if (!emoji || !name || !dist) { toast('Completá todos los campos'); return; }
+  const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Date.now();
+  plants.push({ id, emoji, name, dist });
+  document.getElementById('newEmoji').value = '';
+  document.getElementById('newName').value  = '';
+  document.getElementById('newDist').value  = '';
+  renderPlantList();
+  renderPlantSelector();
+  renderAssociations();
+  saveState();
+  toast(`${emoji} ${name} agregada ✅`);
+}
+
+function deletePlant(id) {
+  if (!confirm('¿Eliminar esta planta? Se borrará del diseño también.')) return;
+  plants = plants.filter(p => p.id !== id);
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (grid[r][c] === id) grid[r][c] = null;
+  if (selectedPlant === id) selectedPlant = null;
+  renderGrid();
+  renderPlantList();
+  renderPlantSelector();
+  saveState();
+  toast('Planta eliminada');
+}
+
+function editPlant(id) {
+  const p = getPlant(id);
+  if (!p) return;
+  const newEmoji = prompt('Emoji:', p.emoji);
+  if (!newEmoji) return;
+  const newName = prompt('Nombre:', p.name);
+  if (!newName) return;
+  const newDist = parseInt(prompt('Distancia mínima (cm):', p.dist));
+  if (!newDist) return;
+  p.emoji = newEmoji; p.name = newName; p.dist = newDist;
+  renderGrid();
+  renderPlantList();
+  renderPlantSelector();
+  saveState();
+  toast('Planta actualizada ✅');
+}
+
+// ════════════════════════════════════════════════
+//  ASSOCIATIONS
+// ════════════════════════════════════════════════
+function renderAssociations() {
+  const el = document.getElementById('assocList');
+  el.innerHTML = ASSOCIATIONS.map(a => {
+    const pa = getPlant(a.a), pb = getPlant(a.b);
+    if (!pa || !pb) return '';
+    const icon  = a.type==='good'?'✅':a.type==='warn'?'⚠️':'❌';
+    const cls   = a.type==='good'?'assoc-good':a.type==='warn'?'assoc-warn':'assoc-bad';
+    const badge = a.type==='good'?'badge-green':a.type==='warn'?'badge-yellow':'badge-red';
+    const label = a.type==='good'?'Recomendado':a.type==='warn'?'Atención':'Evitar';
+    return `
+      <div class="assoc-item ${cls}">
+        <span class="assoc-icon">${icon}</span>
+        <div class="assoc-text">
+          <strong>${pa.emoji} ${pa.name} + ${pb.emoji} ${pb.name}</strong><br>
+          <span style="font-size:11px">${a.note}</span>
+        </div>
+        <span class="assoc-badge ${badge}">${label}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  STATS
+// ════════════════════════════════════════════════
+function updateStats() {
+  const el = document.getElementById('statsBar');
+  const counts = {};
+  grid.flat().forEach(pid => { if (pid) counts[pid] = (counts[pid]||0)+1; });
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  const pills = Object.entries(counts).map(([pid, n]) => {
+    const p = getPlant(pid);
+    return p ? `<span class="stat-pill">${p.emoji} ${n}</span>` : '';
+  }).join('');
+  el.innerHTML = `<span class="stat-pill">🌱 ${total} plantas</span>${pills}${errors.size?`<span class="stat-pill" style="background:#ffebee;color:var(--red)">⚠️ ${errors.size/2|0} conflictos</span>`:''}`;
+}
+
+// ════════════════════════════════════════════════
+//  SAVES
+// ════════════════════════════════════════════════
+function saveDesign() {
+  const name = document.getElementById('saveName').value.trim() || 'Sin nombre';
+  const saves = getSaves();
+  const entry = {
+    id: Date.now().toString(),
+    name,
+    date: new Date().toLocaleDateString('es-AR'),
+    cols: COLS,
+    rows: ROWS,
+    grid: grid.map(r => [...r]),
+    plants: JSON.parse(JSON.stringify(plants)),
+  };
+  saves.unshift(entry);
+  localStorage.setItem('huerta_saves', JSON.stringify(saves));
+  document.getElementById('saveName').value = '';
+  renderSaves();
+  toast(`"${name}" guardado 💾`);
+}
+
+function getSaves() {
+  try { return JSON.parse(localStorage.getItem('huerta_saves') || '[]'); } catch { return []; }
+}
+
+function renderSaves() {
+  const el = document.getElementById('savesList');
+  const saves = getSaves();
+  if (!saves.length) {
+    el.innerHTML = '<p style="color:var(--gray);font-size:13px;">No hay diseños guardados aún.</p>';
+    return;
+  }
+  el.innerHTML = saves.map(s => `
+    <div class="save-item">
+      <span class="save-icon">🌾</span>
+      <div class="save-info">
+        <strong>${s.name}</strong>
+        <span>${s.date} · ${s.cols}×${s.rows}</span>
+      </div>
+      <div class="save-btns">
+        <button class="btn btn-primary btn-sm" onclick="loadDesign('${s.id}')">📂</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDesign('${s.id}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadDesign(id) {
+  const saves = getSaves();
+  const s = saves.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`¿Cargar "${s.name}"? El diseño actual se perderá.`)) return;
+  COLS = s.cols; ROWS = s.rows;
+  grid = s.grid;
+  plants = s.plants;
+  selectedPlant = null;
+  renderGrid();
+  renderPlantList();
+  renderPlantSelector();
+  showTab('grid');
+  toast(`"${s.name}" cargado ✅`);
+}
+
+function deleteDesign(id) {
+  let saves = getSaves().filter(s => s.id !== id);
+  localStorage.setItem('huerta_saves', JSON.stringify(saves));
+  renderSaves();
+  toast('Diseño eliminado');
+}
+
+// ════════════════════════════════════════════════
+//  EXPORT
+// ════════════════════════════════════════════════
+function getTextGrid() {
+  return grid.map(row =>
+    row.map(pid => pid ? (getPlant(pid)?.emoji ?? '⬜') : '⬜').join('')
+  ).join('\n');
+}
+
+function updateExportPreview() {
+  const el = document.getElementById('exportPreview');
+  const info = document.getElementById('exportInfo');
+  if (!el || !info) return;
+  el.textContent = getTextGrid();
+
+  const counts = {};
+  grid.flat().forEach(pid => { if (pid) counts[pid] = (counts[pid]||0)+1; });
+  const lines = Object.entries(counts).map(([pid, n]) => {
+    const p = getPlant(pid);
+    return p ? `<div style="font-size:13px;margin-bottom:4px">${p.emoji} <strong>${p.name}</strong>: ${n} plantas · ${n*p.dist} cm min. entre ellas</div>` : '';
+  }).join('');
+  info.innerHTML = `
+    <div style="font-size:12px;color:var(--gray);margin-bottom:8px">Grilla: ${COLS}×${ROWS} (${COLS*10}×${ROWS*10} cm)</div>
+    ${lines || '<span style="color:var(--gray);font-size:13px">Sin plantas.</span>'}
+    ${errors.size ? `<div style="color:var(--red);font-size:12px;margin-top:6px">⚠️ ${errors.size/2|0} conflicto(s) de distancia detectados</div>` : ''}
+  `;
+}
+
+function exportText() {
+  const text = getTextGrid();
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast('Texto copiado 📋'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Texto copiado 📋');
+  }
+}
+
+function downloadText() {
+  const text = `🌱 HUERTA EMOJI\n${'─'.repeat(COLS+2)}\n${getTextGrid()}\n${'─'.repeat(COLS+2)}\nGrilla: ${COLS}×${ROWS} (${COLS*10}×${ROWS*10}cm)\nGenerado: ${new Date().toLocaleString('es-AR')}`;
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'huerta.txt';
+  a.click();
+  toast('Archivo descargado ⬇️');
+}
+
+function exportPNG() {
+  const canvas = document.getElementById('exportCanvas');
+  const CELL = 48, PAD = 20, FONT = 28;
+  const W = COLS * CELL + PAD*2;
+  const H = ROWS * CELL + PAD*2 + 40;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#f1f8e9';
+  ctx.fillRect(0, 0, W, H);
+
+  // Title
+  ctx.fillStyle = '#2d7a3a';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.fillText('🌱 Huerta Emoji', PAD, PAD + 14);
+
+  // Grid
+  ctx.font = `${FONT}px sans-serif`;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const x = PAD + c * CELL;
+      const y = PAD + 40 + r * CELL;
+
+      // cell bg
+      const pid = grid[r][c];
+      ctx.fillStyle = errors.has(`${r},${c}`) ? '#ffebee' : '#ffffff';
+      ctx.fillRect(x, y, CELL, CELL);
+      ctx.strokeStyle = '#e0e0e0';
+      ctx.strokeRect(x, y, CELL, CELL);
+
+      // emoji
+      const emoji = pid ? getPlant(pid)?.emoji ?? '⬜' : '⬜';
+      ctx.fillText(emoji, x + (CELL - FONT)/2 - 2, y + CELL - (CELL - FONT)/2);
+    }
+  }
+
+  // Download
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'huerta.png';
+    a.click();
+    toast('PNG exportado 🖼️');
+  });
+}
+
+// ════════════════════════════════════════════════
+//  CONFIG MODAL
+// ════════════════════════════════════════════════
+function openConfigModal() {
+  document.getElementById('cfgCols').value = COLS;
+  document.getElementById('cfgRows').value = ROWS;
+  document.getElementById('configModal').classList.add('show');
+}
+
+function applyConfig() {
+  const c = Math.min(30, Math.max(3, parseInt(document.getElementById('cfgCols').value)||10));
+  const r = Math.min(40, Math.max(3, parseInt(document.getElementById('cfgRows').value)||10));
+  COLS = c; ROWS = r;
+  buildGrid(true);
+  closeModal('configModal');
+  saveState();
+  toast(`Grilla ${COLS}×${ROWS} aplicada ✅`);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function updateHeaderLabel() {
+  const area = ((COLS * ROWS * 100) / 10000).toFixed(1);
+  document.getElementById('gridSizeLabel').textContent = `Grilla ${COLS}×${ROWS} · ${area}m²`;
+}
+
+// ════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════
+function showTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  const tabs = ['grid','plants','assoc','saves','export'];
+  document.querySelectorAll('.tab')[tabs.indexOf(tab)]?.classList.add('active');
+  if (tab === 'export') { updateExportPreview(); }
+  if (tab === 'assoc')  { renderCurrentSuggestions(); }
+}
+
+// ════════════════════════════════════════════════
+//  PERSISTENCE
+// ════════════════════════════════════════════════
+function saveState() {
+  try {
+    localStorage.setItem('huerta_state', JSON.stringify({ COLS, ROWS, grid, plants }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('huerta_state');
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    COLS   = s.COLS   || COLS;
+    ROWS   = s.ROWS   || ROWS;
+    grid   = s.grid   || grid;
+    plants = s.plants || plants;
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
+function getPlant(id) { return plants.find(p => p.id === id); }
+
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ════════════════════════════════════════════════
+//  ANDROID BRIDGE (llamado desde Java/Kotlin)
+// ════════════════════════════════════════════════
+window.getGridText = () => getTextGrid();
+window.clearGridExternal = () => { clearGrid(); };
+
+// ════════════════════════════════════════════════
+//  START
+// ════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
